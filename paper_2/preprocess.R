@@ -160,6 +160,14 @@ rows_NA = d[rowSums(is.na(d)) > 0,] # rows are containing mostly variables that
                                     # we didn't use in the part 1 study
 
 
+# one of the MQ7 entries has a typo, making the entire column a factor
+table(d$MQ7)
+i = which(d$MQ7 == "`0")
+d$MQ7[i] = 0
+d$MQ7 = droplevels(d$MQ7)
+d$MQ7 = as.numeric(as.character(d$MQ7))
+
+
 write.csv(d, "part2/data/full_data.csv", row.names = FALSE)
 
 # test_read = read.csv("part2/data/full_data.csv")
