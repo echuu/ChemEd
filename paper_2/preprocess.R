@@ -48,6 +48,11 @@ d = d %>% mutate(school = id_inst)
 d = d %>% mutate(pass = (course > MIN_PASS) + 0) # indicator for pass/fail
 
 
+######## ---- add separate score for alg and conceptual  questions ----#########
+
+d = d %>% mutate(alg = Q1A + Q2A + Q3A + Q4A + Q5A + Q6A)
+d = d %>% mutate(conc = Q1C + Q2C + Q3C + Q4C + Q5C + Q6C)
+
 #####################    process variable values    ############################
 
 ## Many of the variables contain values that are incorrectly inputted, creating
@@ -166,6 +171,8 @@ i = which(d$MQ7 == "`0")
 d$MQ7[i] = 0
 d$MQ7 = droplevels(d$MQ7)
 d$MQ7 = as.numeric(as.character(d$MQ7))
+
+
 
 
 write.csv(d, "part2/data/full_data.csv", row.names = FALSE)
