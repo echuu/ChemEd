@@ -134,6 +134,71 @@ names(course_must) = c("must_score", "course_avg")
   labs(x = "MUST Score", y = "Average Course Percent")
 
 
+## Figure 6: Avg Course Percent vs Number of Common Questions Answered Correctly
+
+course_cq = x %>% group_by(as.factor(comm)) %>% summarise(mean(course)) %>% 
+  data.frame
+names(course_cq) = c("comm_score", "course_avg")
+(fig6 = ggplot(course_cq, aes(x = comm_score, y = course_avg)) + 
+    geom_bar(stat = 'identity') + scale_y_continuous(limits = c(0,100)) +
+    geom_text(aes(x = comm_score, y = course_avg + 3, 
+                  label = round(course_avg, 1)))) + theme_bw() + 
+  labs(x = "Common Questions Score", y = "Average Course Percent")
+
+
+
+## Table 5: Predictability of success and failure of each diagnostic instrument
+
+
+
+## Table 6: % of students successfully identified out of faily population and
+##          % students misidentified as at risk by group
+
+
+
+
+## Figure 7: avg score on common qustions vs # of MUST q's answered correctly
+
+# mean of common questions score per MUST score (0 - 20)
+cq_must = x %>% group_by(as.factor(must)) %>% summarise(mean(comm)) %>% 
+  data.frame()
+names(cq_must) = c("must", "cq")
+(fig7 = ggplot(cq_must, aes(x = must, y = cq)) + 
+    geom_bar(stat = 'identity') + scale_y_continuous(limits = c(0,12)) +
+    geom_text(aes(x = must, y = cq + 1, 
+                  label = round(cq, 1))) + theme_bw() + 
+  labs(x = "MUST Score", y = "Average Common Question Score"))
+
+
+## Figure 8: average common question performance (0,1) per MUST group
+
+# create MUST performance groups: 1, 5, 10, 15, 20
+# subset out students with scores exactly equal to 1, 5, 10, 15, 20
+must_group = x %>% filter(must %in% c(1, 5, 10, 15, 20)) # 224 observations
+
+# Average score (between 0, 1) per Common Question (1, 12)
+must_group %>% group_by(as.factor())
+
+ggplot(must_group, aes(x = ))
+
+must_group %>% group_by()
+
+cq_must_df = x %>% select(must, Q1A:Q6C) %>% 
+  filter(must %in% c(1, 5, 10, 15, 20))
+
+cq_by_group = aggregate(cq_must_df[, -1], list(cq_must_df$must), mean)
+names(cq_by_group) = c("group", as.character(1:12))
+
+
+cq_by_group_long = melt(cq_by_group, id.vars = "group")
+ggplot(cq_by_group_long, aes(x = variable, y = value, 
+                             group = group, color = as.factor(group))) + 
+  geom_point() + geom_line() +
+  labs(x = "Common Question", y = "Average Score", 
+       main = "Average CQ score by Question") +
+  scale_y_continuous(limits = c(0, 1))
+
+
 
 ## create new supporting figures
 
