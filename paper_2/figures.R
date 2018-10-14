@@ -149,12 +149,13 @@ names(course_cq) = c("comm_score", "course_avg")
 
 ## Table 5: Predictability of success and failure of each diagnostic instrument
 
-
+## not reproduced -- reasoning, model seems problematic, oversimplified
 
 ## Table 6: % of students successfully identified out of faily population and
 ##          % students misidentified as at risk by group
 
-
+## not reproduced -- reasoning, model seems problematic, oversimplified
+## uses the same model used to generate the results in table 5
 
 
 ## Figure 7: avg score on common qustions vs # of MUST q's answered correctly
@@ -199,12 +200,166 @@ ggplot(cq_by_group_long, aes(x = variable, y = value,
   scale_y_continuous(limits = c(0, 1))
 
 
+## table 7: course percent and comment question score by gender
 
-## create new supporting figures
+x %>% group_by(gender) %>% summarise(mean(course)) # mean course by gender
+x %>% group_by(gender) %>% summarise(sd(course))   # sd course by gender
+
+x %>% group_by(gender) %>% summarise(mean(comm))   # comm score by gender
+x %>% group_by(gender) %>% summarise(sd(comm))     # sd score by gender
+
+
+# t-test to test for differences in course average per gender, cq per gender
+# sds (shown in previous calculation) are approx equal, so we use var.equal = T
+
+# p-value = 0.8448
+t.test(x$course[x$gender == 0], x$course[x$gender == 1], var.equal = T) 
+
+# p-value = 0.2874
+t.test(x$comm[x$gender == 0], x$comm[x$gender == 1], var.equal = T) 
 
 
 
+## Table 8: Course percent and common question score by ethnicity 
+eth_counts = x %>% group_by(ethnic) %>% count %>% data.frame()
+course_avg = x %>% group_by(ethnic) %>% summarise(mean(course)) %>% data.frame()
+course_sd  = x %>% group_by(ethnic) %>% summarise(sd(course)) %>% data.frame()
+cq_avg     = x %>% group_by(ethnic) %>% summarise(mean(comm)) %>% data.frame()
+cq_sd      = x %>% group_by(ethnic) %>% summarise(sd(course)) %>% data.frame()
 
+tbl8 = data.frame(eth_counts, course_avg[,2], course_sd[,2], 
+                  cq_avg[,2], cq_sd[,2])
+names(tbl8) = c("Ethn", "N", "Course_Avg", "Course_SD", "CQ_Score", "CQ_SD")
+tbl8[c(1:4, 6, 5),]  # course average column does not match
+
+# anova to test difference in means between groups: course average
+# first examine plots of course average for each group
+ggplot(x, aes(x = ethnic, y = course)) + geom_boxplot() + ylab("Course Average")
+
+aov_course = aov(course ~ ethnic, data = x)
+summary(aov_course)
+
+# anova to test difference in means between groups: cq score
+# first examine plots of cq_score for each group
+ggplot(x, aes(x = ethnic, y = comm)) + geom_boxplot() + ylab("CQ Score") 
+
+aov_comm = aov(comm ~ ethnic, data = x)
+summary(aov_comm)
+
+
+
+## Table 9: Course percent and average common question score by 
+##          college graduation of grandparents and parents 
+
+
+# create the groups: nn, ny, yn, yy (Grandparents/Parents College)
+x = x %>% mutate(gp_edu = "N/A") # create variable for the group described above
+x$gp_edu[(x$grand == "N") & (x$parent == "N")] = "NN"  # grand no, parent no
+x$gp_edu[(x$grand == "N") & (x$parent == "Y")] = "NY"  # grand no, parent yes
+x$gp_edu[(x$grand == "Y") & (x$parent == "N")] = "YN"  # grand yes, parent no
+x$gp_edu[(x$grand == "Y") & (x$parent == "Y")] = "YY"  # grand yes, parent yes
+
+
+gp_counts  = x %>% group_by(gp_edu) %>% count %>% data.frame()
+course_avg = x %>% group_by(gp_edu) %>% summarise(mean(course)) %>% data.frame()
+course_sd  = x %>% group_by(gp_edu) %>% summarise(sd(course)) %>% data.frame()
+cq_avg     = x %>% group_by(gp_edu) %>% summarise(mean(comm)) %>% data.frame()
+cq_sd      = x %>% group_by(gp_edu) %>% summarise(sd(course)) %>% data.frame()
+
+tbl9 = data.frame(gp_counts, course_avg[,2], course_sd[,2], 
+                  cq_avg[,2], cq_sd[,2])
+names(tbl9) = c("Grand/Parent", "N", "Course_Avg", "Course_SD", 
+                "CQ_Score", "CQ_SD")
+
+
+# first examine plots of course average for each group
+ggplot(x, aes(x = gp_edu, y = course)) + geom_boxplot() + 
+  labs(y = "Course Average", x = "Grand/Parents College")
+
+# include N/A group
+aov_course = aov(course ~ gp_edu, data = x)
+summary(aov_course) # p-value: 1.53e-09
+
+# if we exclude N/A group
+aov_course1 = aov(course ~ gp_edu, data = x[x$gp_edu != "N/A",])
+summary(aov_course1) # p-value: 1.18e-10 --- still very significant
+
+
+# first examine plots of cq_score average for each group
+ggplot(x, aes(x = gp_edu, y = comm)) + geom_boxplot() + 
+  labs(y = "Comm Score", x = "Grand/Parents College")
+
+# include N/A group
+aov_comm = aov(comm ~ gp_edu, data = x)
+summary(aov_comm) # p-value: 3.04e-13 ***
+
+# if we exclude N/A group
+aov_comm1 = aov(comm ~ gp_edu, data = x[x$gp_edu != "N/A",])
+summary(aov_comm1) # p-value: 1.5e-13 *** --- still very significant
+
+
+
+## Table 10: Course average and average common question score 
+##           by hours per week of pay
+
+hrs_counts  = x %>% group_by(hrs) %>% count %>% data.frame()
+course_avg  = x %>% group_by(hrs) %>% summarise(mean(course)) %>% data.frame()
+course_sd   = x %>% group_by(hrs) %>% summarise(sd(course)) %>% data.frame()
+cq_avg      = x %>% group_by(hrs) %>% summarise(mean(comm)) %>% data.frame()
+cq_sd       = x %>% group_by(hrs) %>% summarise(sd(course)) %>% data.frame()
+
+tbl10 = data.frame(hrs_counts, course_avg[,2], course_sd[,2], 
+                  cq_avg[,2], cq_sd[,2])
+names(tbl10) = c("Hours", "N", "Course_Avg", "Course_SD", 
+                "CQ_Score", "CQ_SD")
+
+# first examine plots of course average for each group
+ggplot(x, aes(x = hrs, y = course)) + geom_boxplot() + 
+  labs(y = "Course Average", x = "Hours")
+
+# include N/A group
+aov_course = aov(course ~ hrs, data = x)
+summary(aov_course) # p-value: 5.81e-14
+
+# first examine plots of cq_score average for each group
+ggplot(x, aes(x = hrs, y = comm)) + geom_boxplot() + 
+  labs(y = "Comm Score", x = "Hours")
+
+# include N/A group
+aov_comm = aov(comm ~ hrs, data = x)
+summary(aov_comm) # p-value: 2.47e-14
+
+
+## Table 11: Course percent and average common question score by 
+##           Texas zip code 
+
+x0 = x %>% filter(zip %in% c("75", "76", "77", "78", "79"))
+zip_counts  = x0 %>% group_by(zip) %>% count %>% data.frame()
+course_avg  = x0 %>% group_by(zip) %>% summarise(mean(course)) %>% data.frame()
+course_sd   = x0 %>% group_by(zip) %>% summarise(sd(course)) %>% data.frame()
+cq_avg      = x0 %>% group_by(zip) %>% summarise(mean(comm)) %>% data.frame()
+cq_sd       = x0 %>% group_by(zip) %>% summarise(sd(course)) %>% data.frame()
+
+tbl11 = data.frame(zip_counts, course_avg[,2], course_sd[,2], 
+                   cq_avg[,2], cq_sd[,2])
+names(tbl11) = c("Zip", "N", "Course_Avg", "Course_SD", 
+                 "CQ_Score", "CQ_SD")
+
+# first examine plots of course average for each group
+ggplot(x0, aes(x = zip, y = course)) + geom_boxplot() + 
+  labs(y = "Course Average", x = "Zip")
+
+# include N/A group
+aov_course = aov(course ~ zip, data = x0)
+summary(aov_course) # p-value: 5.81e-14
+
+# first examine plots of cq_score average for each group
+ggplot(x0, aes(x = zip, y = comm)) + geom_boxplot() + 
+  labs(y = "Comm Score", x = "Zip")
+
+# include N/A group
+aov_comm = aov(comm ~ zip, data = x0)
+summary(aov_comm) # p-value: 2.47e-14
 
 
 # end of figures.R
