@@ -362,4 +362,6 @@ aov_comm = aov(comm ~ zip, data = x0)
 summary(aov_comm) # p-value: 2.47e-14
 
 
+write.csv(x, "part2/data/x_model.csv", row.names = FALSE)
+
 # end of figures.R
