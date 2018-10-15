@@ -48,10 +48,42 @@ setwd('/home/eric/Dropbox/chem_ed')
 
 x = read.csv("part2/data/x_model.csv")
 
+## modeling tasks:
 
 
 ## repeat the models done for paper 1
 
+
+
+
+## using common questions as a feature to predict course average
+
+
+
+
+## predictive model using just common questions (compare vs. MUST)
+
+
+
+
+
+## common questions as a function of MUST and the other explanatory variables
+
+    ## nonlinear model (linear regression with polynomial term for MUST)
+    ## some of the figures indicated a nonlienar relationship
+
+
+
+
+## relationship between common questions and MUST
+
+
+
+## difference (if any) between conceptual vs algorithmic
+    ## algorithmic as a function of MUST + other
+    ## conceptual as a function of MUST + other
+    ## compare these models
+    ## think of a way to do hypothesis test between using alg and conc
 
 
 
