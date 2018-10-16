@@ -46,18 +46,54 @@ setwd('/home/eric/Dropbox/chem_ed')
 #### ---------------------------------------------------------------------------
 
 
-x = read.csv("part2/data/x_model.csv")
+x = read.csv("part2/data/x_model.csv") # 1020 x 60
+
+## train/test split --- training set will have 2/3 of the total data
+
+train_test = generateTrainTest(x, seed = 0)
+
+x_train = train_test[[1]] # 682 x 60
+x_test  = train_test[[2]] # 338 x 60 
+
 
 ## modeling tasks:
+
+#### linear regression for modeling course average -----------------------------
+
+## linear regression (full); course ~ all features (omit created features from
+#                                                   figures, correlated)
+
+## lasso regression for feature selection
+
+
+## linear regression using (LASSO) selected variables
+
+
+
+# ------------------------------------------------------------------------------
+
+
+#### logistic regression for modeling pass/fail --------------------------------
+
+
+
+
+
+
+
+# ------------------------------------------------------------------------------
 
 
 ## repeat the models done for paper 1
 
 
 
+## using common questions as a feature to predict course average ---------------
 
-## using common questions as a feature to predict course average
 
+
+
+# ------------------------------------------------------------------------------
 
 
 
