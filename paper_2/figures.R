@@ -177,14 +177,7 @@ names(cq_must) = c("must", "cq")
 # subset out students with scores exactly equal to 1, 5, 10, 15, 20
 must_group = x %>% filter(must %in% c(1, 5, 10, 15, 20)) # 224 observations
 
-# Average score (between 0, 1) per Common Question (1, 12)
-must_group %>% group_by(as.factor())
-
-ggplot(must_group, aes(x = ))
-
-must_group %>% group_by()
-
-cq_must_df = x %>% select(must, Q1A:Q6C) %>% 
+cq_must_df = x %>% dplyr::select(must, Q1A:Q6C) %>% 
   filter(must %in% c(1, 5, 10, 15, 20))
 
 cq_by_group = aggregate(cq_must_df[, -1], list(cq_must_df$must), mean)

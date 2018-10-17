@@ -173,6 +173,38 @@ d$MQ7 = droplevels(d$MQ7)
 d$MQ7 = as.numeric(as.character(d$MQ7))
 
 
+# re-encode the major column: 
+# STEM
+# medical
+# dual (stem + non-stem)
+# other
+
+# original responses (what a mess)
+#  [1] ""                 " "                "a"               
+#  [4] "a. Eng"           "a. Math"          "a.Sci"           
+#  [7] "a. Sci"           "a. Sci & b"       "a. Sci,Math"     
+#  [10] "a. Sci, Tech"     "a. Sc/Math"       "a. Tech"         
+#  [13] "a. Tech,Eng"      "a. Tech,Math"     "b"               
+#  [16] "b+a. Eng"         "c"                "c + b"           
+#  [19] "d"                "SCI: c, b & b"    "SCI: c-b; b: ALL"
+#  [22] "STEM"             "STEM & b"  
+
+stem  = c("a", "a. Eng", "a. Math", "a.Sci", "a. Sci", "a. Sci,Math",
+          "a. Sci, Tech", "a. Sc/Math", "a. Tech", "a. Tech,Eng", 
+          "a. Tech,Math", "STEM") 
+med   = c("b", "c + b", "SCI: c, b & b", "SCI: c-b; b: ALL") # medical students
+dual  = c("a. Sci & b", "b+a. Eng", "d", "STEM & b") # stem + non-stem 
+other = c("", " ", "c") # other students, includes blank responses
+
+# length(stem) + length(med) + length(dual) + length(other)
+
+d$major = as.character(d$major)
+d$major[d$major %in% stem]  = "stem"
+d$major[d$major %in% med]   = "med"
+d$major[d$major %in% dual]  = "dual"
+d$major[d$major %in% other] = "other"
+
+d$major = as.factor(d$major)
 
 
 write.csv(d, "part2/data/full_data.csv", row.names = FALSE)

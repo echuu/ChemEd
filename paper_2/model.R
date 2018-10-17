@@ -3,6 +3,10 @@
 
 setwd('/home/eric/Dropbox/chem_ed')
 
+library(MASS)
+library(dplyr)
+library(glmnet)
+
 ############################     variables    ##################################
 #-------------------------------------------------------------------------------
 
@@ -50,10 +54,35 @@ x = read.csv("part2/data/x_model.csv") # 1020 x 60
 
 ## train/test split --- training set will have 2/3 of the total data
 
-train_test = generateTrainTest(x, seed = 0)
+# variables to omit from model features (9 features to be omitted)
+#    grand      :  value accounted for in gp_edu
+#    parent     :  value accounted for in gp_edu
+#    hs_chem    :  poor encoding
+#    math_comp  :  poor encoding
+#    curr_math  :  poor encoding
+#    chem1      :  
+#    chem2      : 
+#    letter     :  calculated using the course average
+#    final_exam :  included in the calculation of the course average
 
-x_train = train_test[[1]] # 682 x 60
-x_test  = train_test[[2]] # 338 x 60 
+# one of the two is omitted depending on the task (regression/class.)
+#    pass       :  calculated using the course average
+#    course     :  used to calculate the 'pass' variable
+
+
+# varibales to omit
+omit_vars   = c("grand", "parent", "hs_chem", "math_comp", "curr_math", 
+                "chem1", "chem2", "letter", "final_exam")
+
+# create the dataframe used for modeling; note that depending on the task,
+# either course or pass will need to be omitted from the feature space
+# since course determines values of pass
+x0   = x[,-which(names(x) %in% omit_vars)]   # 1020 x 51
+
+train_test = generateTrainTest(x0, seed = 0)
+
+x_train = train_test[[1]] # 682 x 51
+x_test  = train_test[[2]] # 338 x 51 
 
 
 ## modeling tasks:
@@ -63,7 +92,18 @@ x_test  = train_test[[2]] # 338 x 60
 ## linear regression (full); course ~ all features (omit created features from
 #                                                   figures, correlated)
 
+# variables to omit: 
+#    
+
+
+# m0: course_avg ~ must + rest (omit individual must Q's, omit CQ's)
+# m1: course_avg ~ Q1 + ... + Q20 + rest
+# m2: course_avg ~ cq
+
+
 ## lasso regression for feature selection
+
+
 
 
 ## linear regression using (LASSO) selected variables
