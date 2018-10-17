@@ -191,7 +191,11 @@ pf_m0 = glm(as.factor(pass) ~ . - course - comm, family = 'binomial',
             x_train[,!(names(x0) %in% all_questions)])
 summary(pf_m0)
 
-# evaluate classification here:
+# obtain train/test balanced/overall accuracy, confusion matrix
+m1_results = getClassResults(m = pf_m0, x_train = x_train, x_test = x_test)
+m1_results$test_balance   # test balanced accuracy
+m1_results$test_overall   # test overall accuracy
+m1_results$conf_mat       # true values of pass/fail are given by column sums
 
 
 # pass/fail model 1: pass ~ must + ... (omit comm, conc, alg, individual q's)

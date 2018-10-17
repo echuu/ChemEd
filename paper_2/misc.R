@@ -148,6 +148,8 @@ tuneThreshold = function(pred_prob, true_class, targetAcc, maxIter = 50,
     }
   } # end while()
   
+  # print("inside tune threshold")
+  # print(length(t))
   out = data.frame(t_star = t, balAcc, iters = iter)
   
   return(out)
@@ -155,7 +157,58 @@ tuneThreshold = function(pred_prob, true_class, targetAcc, maxIter = 50,
 } # end of tuneThreshold() function
 
 
+# getClassResults() --------------------------------------------------------------
+# input:    
+#           m           : classification model
+#           x_train     : training set (contains response as a column)
+#           x_test      : test set (contains response as a column)
+#           minBalAcc   : min. BALANCED accuracy
+# output:   out         : list containing convergence results: 
+#                             (1) balanced train accuracy 
+#                             (2) overall train accuracy
+#                             (3) balanced test accuracy 
+#                             (4) overall test accuracy
+#                             (5) confusion matrix for predictions vs. true val
+getClassResults = function(m, x_train, x_test, minBalAcc = 0.7) {
+  
+  ## generate training predictions: vector of probabilities
+  train_probs = predict(m, type = 'response')
+  
+  ## we tune the threshold for 'balanced accuracy'
+  threshold = tuneThreshold(pred_prob = train_probs, true_class = x_train$pass, 
+                            targetAcc = minBalAcc, DEBUG = FALSE)
+  t_star = threshold$t_star   # optimal threshold to make decisions
+  
+  # print(length(threshold$t_star))
+  
+  ## obtain pass/fail predictions by thresholding the probabilities w/ t_star
+  train_preds = (train_probs > t_star) + 0
+  
+  ## training classificaiton accuracy
+  train_accuracy = classAccuracy(train_preds, x_train$pass)
+  train_balance = train_accuracy$bal_acc  # training balanced accuracy
+  train_overall = train_accuracy$acc      # training overall accuracy
+  
+  ## obtain test accuracy using 'm' and thresholding with t_star
+  test_preds = (predict(m, newdata = x_test, type = 'response') > t_star) + 0
+  
+  test_accuracy = classAccuracy(test_preds, x_test$pass)
+  test_balance = test_accuracy$bal_acc
+  test_overall = test_accuracy$acc
+  
+  # conf_mat = test_accuracy$conf_mat
+  
+  conf_mat = table(test_preds, x_test$pass)
+  
+  out = list(train_balance = train_balance, train_overall = train_overall, 
+             test_balance = test_balance, test_overall = test_overall, 
+             conf_mat = conf_mat)
+  
+  return(out)
+  
+} # end of getClassResults() function
 
 
 
 
+# end of misc.R file
