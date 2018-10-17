@@ -29,6 +29,7 @@ generateTrainTest = function(x, train_split = 2 / 3, seed = 1) {
   set.seed(seed)
   ## id_inst_nms: school id's (7 x 1)
   ## id_inst    : all schools (1073 x 1)
+  print(dim(x))
   schools = x$school
   id_inst_nms = as.character(unique(schools))
   N_INST      = length(id_inst_nms)         # number of unique schools
@@ -52,10 +53,27 @@ generateTrainTest = function(x, train_split = 2 / 3, seed = 1) {
   x_test = x[!train,]
   
   
+  print(dim(x_train))
+  print(dim(x_test))
   train_test = list(x_train, x_test)
   
   return(train_test)
 } # end of generateTrainTest() function
+
+
+# getMSE() --------------------------------------------------------------
+# input:    
+#           m           : fitted model
+#           x_test      : features for the test set
+#           y_test      : true response values
+# output:   mse         : mean squared error of the predictions using m
+getMSE = function(m, x_test, y_test) {
+  
+  preds = predict(m, newdata = x_test)
+  mse = mean((y_test - preds)^2)
+    
+  return(mse)
+} # end of getMSE() function
 
 
 # classAccuracy() --------------------------------------------------------------
