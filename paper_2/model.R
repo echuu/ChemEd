@@ -104,6 +104,9 @@ x_test  = train_test[[2]]   # 338 x 51
 
 
 ## modeling tasks:
+ 
+#################### ----------- REGRESSION --------------- ####################
+
 
 #### linear regression for modeling course average -----------------------------
 
@@ -114,82 +117,122 @@ x_test  = train_test[[2]]   # 338 x 51
     # fit the full model, exclude indicators for individual questions
     # exlucde comm, use alg + conc breakdown since we want to see the role of 
     # algorithmic vs. conceptual in predicting course average
-m0 = lm(course ~ . - pass - comm, x0[,!(names(x0) %in% all_questions)])
+m0 = lm(course ~ . - pass - comm, x_train[,!(names(x0) %in% all_questions)])
 summary(m0)
 m0_coeffs = summary(m0)$coefficients
-getMSE(m0, x_test, x_test$course) # 68.36572
+getMSE(m0, x_test, x_test$course) # 74.7165
 
-# m1: course_avg ~ must + ... (omit comm, conc, alg, individual q's)
+# m1: course ~ must + ... (omit comm, conc, alg, individual q's)
 m1 = lm(course ~ . - pass - comm - conc - alg, 
-        x0[,!(names(x0) %in% all_questions)])
+        x_train[,!(names(x0) %in% all_questions)])
 summary(m1)
 m1_coeffs = summary(m1)$coefficients
-getMSE(m1, x_test, x_test$course) # 89.86913
+getMSE(m1, x_test, x_test$course) # 96.38957
 
-# m2: course_avg ~ conc + alg + ... (omit comm, must, inidividual q's)
+# m2: course ~ conc + alg + ... (omit comm, must, inidividual q's)
 m2 = lm(course ~ . - pass - comm - must, 
-        x0[,!(names(x0) %in% all_questions)])
+        x_train[,!(names(x0) %in% all_questions)])
 summary(m2)
 m2_coeffs = summary(m2)$coefficients
-getMSE(m2, x_test, x_test$course) # 79.15033
+getMSE(m2, x_test, x_test$course) # 86.69607
 
 # ------------------------------------------------------------------------------
 
-## lasso regression for feature selection
+## lasso regression for feature selection --------------------------------------
 
+# build model matrix, must exclude: all response columns, all_questions
 
+x_train_0 = x_train[, -c(2,47)]  # omit response variables
+x_train_0 = x_train_0[,!(names(x_train_0) %in% all_questions)] # omit questions
+x_test_0 = x_test[,-c(2,47)]
+x_test_0 = x_test_0[,!(names(x_test_0) %in% all_questions)] # omit questions
+
+y_train = x_train$course
+y_test  = x_test$course
+
+xtrain_mat = model.matrix( ~ . - 1, x_train_0)  # one-hot-encoding for factors
+xtest_mat = model.matrix( ~ . - 1, x_test_0)
+
+## m_lasso0: course ~ .
+set.seed(1)
+m_lasso0  = glmnet(x = xtrain_mat, y = y_train, alpha = 1)
+cv_lasso0 = cv.glmnet(x = xtrain_mat, y = y_train, alpha = 1) 
+lambda_star0 = cv_lasso0$lambda.min # optimal lambda: 0.1872694
+lasso_pred0  = predict(m_lasso0, s = lambda_star0, newx = xtest_mat)
+mean((lasso_pred0 - y_test)^2) # MSE: 76.25308
+
+# examine coefficients:
+predict(m_lasso0, type = 'coefficients', s = lambda_star0)
+
+# ------------------------------------------------------------------------------
 
 
 ## linear regression using (LASSO) selected variables
 
-
+# only variable that would be excluded is 'conc' 
+# may not be worth refitting entire model just to exclude one variable
+# even if we refit, the coefficients estimates would be different, and the 
+# 'gained' advantage of having uncertainty estimates of each coefficient would 
+# be lost since they would not correspond to the LASSO model
+# would not be unreasonable to keep one or the other, both agree on the
+# 'important' features, and the predictive abilities (mse) are similar
 
 # ------------------------------------------------------------------------------
+
+
+################## ----------- CLASSIFICATION --------------- ##################
 
 
 #### logistic regression for modeling pass/fail --------------------------------
 
+# pass/fail model 0: pass ~ . (omit individual must Q's, omit CQ's)
+    # use both must + common qs' to predict pass/fail
+pf_m0 = glm(as.factor(pass) ~ . - course - comm, family = 'binomial',
+            x_train[,!(names(x0) %in% all_questions)])
+summary(pf_m0)
+
+# evaluate classification here:
 
 
+# pass/fail model 1: pass ~ must + ... (omit comm, conc, alg, individual q's)
+    # use only must to predict pass/fail
+pf_m1 = glm(as.factor(pass) ~ . - course - comm - conc - alg, 
+            family = 'binomial', x_train[,!(names(x0) %in% all_questions)])
+summary(pf_m1)
 
+# evaluate classification here:
+
+
+# pass/fail model 2: pass ~ conc + alg + ... (omit comm, must, inidividual q's)
+    # use only alg + conc to predict pass/fail (common questions)
+pf_m2 = glm(as.factor(pass) ~ . - course - comm - must, family = 'binomial',
+            x_train[,!(names(x0) %in% all_questions)])
+summary(pf_m2)
+
+
+# evaluate classification here:
 
 
 
 # ------------------------------------------------------------------------------
 
 
-## repeat the models done for paper 1
 
 
-
-## using common questions as a feature to predict course average ---------------
-
-
-
-
-# ------------------------------------------------------------------------------
-
-
-
-## predictive model using just common questions (compare vs. MUST)
-
-
-
-
-
-## common questions as a function of MUST and the other explanatory variables
-
-    ## nonlinear model (linear regression with polynomial term for MUST)
-    ## some of the figures indicated a nonlienar relationship
-
-
+# ------------------------------   TO DO    ------------------------------------
 
 
 ## relationship between common questions and MUST
 
+  ## common questions as a function of MUST and the other explanatory variables
+  
+      ## nonlinear model (linear regression with polynomial term for MUST)
+      ## some of the figures indicated a nonlienar relationship
 
 
-## difference (if any) between conceptual vs algorithmic
+## difference (if any) between conceptual vs algorithmic (this is somewhat 
+##  addressed when examining the coefficients for alg and conc in previous
+##  modeling steps)
     ## algorithmic as a function of MUST + other
     ## conceptual as a function of MUST + other
     ## compare these models
@@ -198,9 +241,4 @@ getMSE(m2, x_test, x_test$course) # 79.15033
 
 
 
-## include the new data from the 'common' questions
-
-
-
-
-# end of figures.R
+# end of model.R
