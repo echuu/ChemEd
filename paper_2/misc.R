@@ -169,10 +169,16 @@ tuneThreshold = function(pred_prob, true_class, targetAcc, maxIter = 50,
 #                             (3) balanced test accuracy 
 #                             (4) overall test accuracy
 #                             (5) confusion matrix for predictions vs. true val
-getClassResults = function(m, x_train, x_test, minBalAcc = 0.7) {
+getClassResults = function(m, x_train, x_test, minBalAcc = 0.7, lambda = 0,
+                           xtrain_mat = NULL, xtest_mat = NULL) {
   
   ## generate training predictions: vector of probabilities
-  train_probs = predict(m, type = 'response')
+  if (lambda == 0) {
+    train_probs = predict(m, type = 'response')
+  } else { # generate predictions for LASSO model
+    train_probs = predict(m, type = 'response', newx = xtrain_mat, s = lambda)
+  }
+  
   
   ## we tune the threshold for 'balanced accuracy'
   threshold = tuneThreshold(pred_prob = train_probs, true_class = x_train$pass, 
@@ -190,7 +196,13 @@ getClassResults = function(m, x_train, x_test, minBalAcc = 0.7) {
   train_overall = train_accuracy$acc      # training overall accuracy
   
   ## obtain test accuracy using 'm' and thresholding with t_star
-  test_preds = (predict(m, newdata = x_test, type = 'response') > t_star) + 0
+  if (lambda == 0) {
+    test_preds = (predict(m, newdata = x_test, type = 'response') > t_star) + 0
+  } else {
+    test_probs = predict(m, type = 'response', newx = xtest_mat, s = lambda)
+    test_preds = (test_probs > t_star) + 0
+  }
+  
   
   test_accuracy = classAccuracy(test_preds, x_test$pass)
   test_balance = test_accuracy$bal_acc

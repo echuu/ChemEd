@@ -192,10 +192,10 @@ pf_m0 = glm(as.factor(pass) ~ . - course - comm, family = 'binomial',
 summary(pf_m0)
 
 # obtain train/test balanced/overall accuracy, confusion matrix
-m1_results = getClassResults(m = pf_m0, x_train = x_train, x_test = x_test)
-m1_results$test_balance   # test balanced accuracy
-m1_results$test_overall   # test overall accuracy
-m1_results$conf_mat       # true values of pass/fail are given by column sums
+m0_results = getClassResults(m = pf_m0, x_train = x_train, x_test = x_test)
+m0_results$test_balance   # test balanced accuracy :  0.6864469
+m0_results$test_overall   # test overall accuracy  :  0.8343195
+m0_results$conf_mat       # true values of pass/fail are given by column sums
 
 
 # pass/fail model 1: pass ~ must + ... (omit comm, conc, alg, individual q's)
@@ -204,7 +204,10 @@ pf_m1 = glm(as.factor(pass) ~ . - course - comm - conc - alg,
             family = 'binomial', x_train[,!(names(x0) %in% all_questions)])
 summary(pf_m1)
 
-# evaluate classification here:
+m1_results = getClassResults(m = pf_m1, x_train = x_train, x_test = x_test)
+m1_results$test_balance   # test balanced accuracy  :  0.6622711
+m1_results$test_overall   # test overall accuracy   :  0.7573964
+m1_results$conf_mat       # true values of pass/fail are given by column sums
 
 
 # pass/fail model 2: pass ~ conc + alg + ... (omit comm, must, inidividual q's)
@@ -213,9 +216,29 @@ pf_m2 = glm(as.factor(pass) ~ . - course - comm - must, family = 'binomial',
             x_train[,!(names(x0) %in% all_questions)])
 summary(pf_m2)
 
+m2_results = getClassResults(m = pf_m2, x_train = x_train, x_test = x_test)
+m2_results$test_balance   # test balanced accuracy  :  0.6959707
+m2_results$test_overall   # test overall accuracy   :  0.8402367
+m2_results$conf_mat       # true values of pass/fail are given by column sums
 
-# evaluate classification here:
 
+#### logistic regression with LASSO for modeling pass/fail ---------------------
+
+set.seed(1)
+# transform factor variables into dummies
+pf_lasso = glmnet(x = xtrain_mat, y = as.factor(x_train$pass), 
+                   alpha = 1, family = 'binomial')     # fit lasso model
+cv_pf_lasso = cv.glmnet(x = xtrain_mat, y = as.factor(x_train$pass), 
+                         family = 'binomial', alpha = 1) 
+lambda_star = cv_pf_lasso$lambda.min                  # optimal lambda: 0.349
+
+predict(pf_lasso, type = 'coefficients', s = lambda_star) # coefficients
+
+lasso_results = getClassResults(pf_lasso, x_train, x_test, lambda = lambda_star, 
+                                xtrain_mat = xtrain_mat, xtest_mat = xtest_mat)
+lasso_results$test_balance   # test balanced accuracy  :  0.7054945
+lasso_results$test_overall   # test overall accuracy   :  0.8461538
+lasso_results$conf_mat       # true values of pass/fail are given by column sums
 
 
 # ------------------------------------------------------------------------------
@@ -226,23 +249,41 @@ summary(pf_m2)
 # ------------------------------   TO DO    ------------------------------------
 
 
-## relationship between common questions and MUST
+##### ------- (1) relationship between common questions and MUST ------- #######
 
-  ## common questions as a function of MUST and the other explanatory variables
+
+## common questions as a function of MUST and the other explanatory variables
   
-      ## nonlinear model (linear regression with polynomial term for MUST)
-      ## some of the figures indicated a nonlienar relationship
+
+## nonlinear model (linear regression with polynomial term for MUST)
+      
 
 
-## difference (if any) between conceptual vs algorithmic (this is somewhat 
-##  addressed when examining the coefficients for alg and conc in previous
-##  modeling steps)
-    ## algorithmic as a function of MUST + other
-    ## conceptual as a function of MUST + other
-    ## compare these models
-    ## think of a way to do hypothesis test between using alg and conc
+# ------------------------------------------------------------------------------
 
 
+
+
+#### ----- (2) difference (if any) between conceptual vs algorithmic ----- #####
+
+
+## algorithmic as a function of MUST + other
+
+
+
+## conceptual as a function of MUST + other
+
+
+
+## compare these models
+
+
+
+## think of a way to do hypothesis test between using alg and conc
+
+
+
+# ------------------------------------------------------------------------------
 
 
 # end of model.R
