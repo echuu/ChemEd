@@ -142,9 +142,9 @@ getMSE(m2, x_test, x_test$course) # 86.69607
 
 # build model matrix, must exclude: all response columns, all_questions
 
-x_train_0 = x_train[, -c(2,47)]  # omit response variables
+x_train_0 = x_train[, -c(2,46,47)]  # omit response variables
 x_train_0 = x_train_0[,!(names(x_train_0) %in% all_questions)] # omit questions
-x_test_0 = x_test[,-c(2,47)]
+x_test_0 = x_test[,-c(2,46, 47)]
 x_test_0 = x_test_0[,!(names(x_test_0) %in% all_questions)] # omit questions
 
 y_train = x_train$course

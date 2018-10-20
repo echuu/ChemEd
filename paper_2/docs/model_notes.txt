@@ -1,0 +1,101 @@
+
+Conclusions/Inference about the Models:
+
+#### Regression Models -----------------------------------------------------------
+
+Model 0 (Full Model)
+- significant variables:
+	- all school variables except for schoolUNTB
+	- majormed, majorstem
+	- tx_birthY: highly negative coefficient
+	- hrs20-29: 
+	- must
+	- alg, conc: algorithmic coefficient is greater than that of conceptual
+	- 
+
+Model 1 (MUST) vs. Model 2 (CQ: conceptual + algorithmic)
+- using one of the two (MUST, conceptal + algorithmic) while omitting the other
+- using MSE as evaluation criterion, we suggest that the common questions provide more insight into student performance (as measured by course average)
+
+
+Model 3 (LASSO Regression for built-in variable selection):
+- MSE for this model is comparable to that of the full model, likely more to be an accurate estimate to the true MSE becaue glmnet has built-in cross validation
+- Coefficients that were shrunk to 0:
+	- schoolACUP
+	- classSO, classJR, classSR: NONE class standing of the student appears not to be important in determining course average
+	- gender1: male indicator not important
+	- ethnicBlack, ethnicOther
+	- majorstem: might be a little surprising, usually stem students do better
+	- tx_hsY
+	- empoffY
+	- hrs30-39
+
+- one of the largest positive coefficients was schoolTAMSA (check the previous figures to see if this school tends to outperform the rest)
+- schoolTAMU has the largest negative coefficient among the schools
+- general effect of school seems to agree with the coefficients from previous models
+
+- algorithmic q. coefficient > conceptual q. coefficient; indicates that basic mathematical skills are more indicative of success, or simply that the conceptual questions require better deisign
+
+
+
+#### Classification Models -------------------------------------------------------
+
+Model 0 (Full Model)
+- test balanced accuracy :  0.6864469
+- test overall accuracy  :  0.8343195
+- significant variables:
+	- majormed, majorstem
+	- must
+	- alg, conc 
+
+
+Model 1 (MUST)
+- test balanced accuracy  :  0.6622711
+- test overall accuracy   :  0.7573964
+- significant variables:
+	- schoolUTXW (10% level)
+	- classSR (10% level)
+	- majormed, majorstem, majorother (10% level)
+	- must
+
+
+Model 2 (CQ: conceptual + algorithmic)
+- test balanced accuracy  :  0.6959707
+- test overall accuracy   :  0.8402367
+- significant variables:
+	- schoolUTXW
+	- majormed, majorstem, majorother (10% level)
+	- alg, conc
+	- gp_eduYY (10%)
+
+Model 3 (LASSO Regression for built-in variable selection):
+- test balanced accuracy  :  0.7054945
+- test overall accuracy   :  0.8461538
+- Coefficients that were shrunk to 0:
+	- schoolACUP, schoolTSU, schoolUNTW
+	- classSO, classJR, classSR
+	- gender1
+	- ethnicBlack, ethnicMixed, ethnicOther, ethnicWhite
+	- majorother, majorstem
+	- emp_offY
+	- hrs11-19, hrs30-30, hrs40+
+	- version87
+	- gp_eduNY, gp_eduYN
+
+- differences from regression model:
+	- fewer schools zero'd out
+	- fewer ethnicities zero'd out
+	- majorother zero'd out
+	- txhs_Y kept in the model
+	- more hours worked variable zero'd out
+	- version87 zero'd out
+	- two of the grandparents/parents college indicators zero'd out
+
+- overall, more variables were zero'd out in the LASSO classification model than in the LASSO regression model, could be because the task is simpler (pass/fail)
+
+
+Comparing the models:
+- using just the balanced accuracy as our evaluation criterion, the first three models do not differ too much, with the model 1 edging the other two out; all three of the first three models outperform the LASSO model in this category
+- using overall acrruacy, we see that model 1 performs the worst of the four models, with the LASSO model giving slightly better predictions than model 2
+
+
