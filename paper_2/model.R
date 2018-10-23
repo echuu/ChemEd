@@ -81,6 +81,7 @@ x = read.csv("part2/data/x_model.csv") # 1020 x 60
 omit_vars   = c("grand", "parent", "hs_chem", "math_comp", "curr_math", 
                 "chem1", "chem2", "letter", "final_exam", "zip")
 
+
 # create the dataframe used for modeling; note that depending on the task,
 # either course or pass will need to be omitted from the feature space
 # since course determines values of pass
@@ -253,30 +254,68 @@ lasso_results$conf_mat       # true values of pass/fail are given by column sums
 
 
 ## common questions as a function of MUST and the other explanatory variables
-  
+
+# omit individual must, common questions (previously this was done in-line)
+# when creating the model
+x_train_sub = x_train[,!(names(x0) %in% all_questions)]
+
+# omit algorithmic, conceptual questions since they sum to give comm
+# omit pass, since course average used to determine pass (0/1)
+cq_m1 = lm(comm ~ . - alg - conc - pass, x_train_sub)
+summary(cq_m1)
+cq_m1_coeffs = summary(cq_m0)$coefficients
+getMSE(cq_m1, x_test, x_test$comm) # MSE: 
+
+
+################################ TO - DO #######################################
 
 ## nonlinear model (linear regression with polynomial term for MUST)
-      
+## quadratic must term
+cq_m2 = lm(comm ~ . - alg - conc - pass, x_train_sub)
+summary(cq_m1)
+cq_m1_coeffs = summary(cq_m0)$coefficients
+getMSE(cq_m1, x_test, x_test$comm) # MSE: 
 
+## cubic must term
+cq_m3 = lm(comm ~ . - alg - conc - pass, x_train_sub)
+summary(cq_m1)
+cq_m1_coeffs = summary(cq_m0)$coefficients
+getMSE(cq_m1, x_test, x_test$comm) # MSE: 
+
+## quartic must term
+cq_m4 = lm(comm ~ . - alg - conc - pass, x_train_sub)
+summary(cq_m1)
+cq_m1_coeffs = summary(cq_m0)$coefficients
+getMSE(cq_m1, x_test, x_test$comm) # MSE: 
 
 # ------------------------------------------------------------------------------
-
-
 
 
 #### ----- (2) difference (if any) between conceptual vs algorithmic ----- #####
 
 
-## algorithmic as a function of MUST + other
+## algorithmic as a function of MUST + other (linear must term)
+    # omit comm since alg contributes to comm
+    # omit pass, since course average used to determine pass (0/1)
+alg_m1 = lm(alg ~ . - comm - conc - pass, x_train_sub)
+summary(alg_m1)
+alg_m1_coeffs = summary(alg_m1)$coefficients
+getMSE(alg_m1, x_test, x_test$alg) # MSE: 
+
+## algorithmic as a function of MUST + other (quadratic must term)
 
 
 
 ## conceptual as a function of MUST + other
+    # omit comm since conc contributes to comm
+    # omit pass, since course average used to determine pass (0/1)
+conc_m1 = lm(conc ~ . - comm - alg - pass, x_train_sub)
+summary(conc_m1)
+conc_m1_coeffs = summary(conc_m1)$coefficients
+getMSE(conc_m1, x_test, x_test$conc) # MSE: 
 
 
-
-## compare these models
-
+## conceptual as a function of MUST + other (quadratic must fit)
 
 
 ## think of a way to do hypothesis test between using alg and conc
