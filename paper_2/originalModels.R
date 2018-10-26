@@ -84,8 +84,40 @@ full_coeffs = summary(full)$coefficients
 getMSE(full, x_test, x_test$course) # 74.7165
 
 
+#### classification model for modeling pass (0/1) ------------------------------
 
-#### basic models --------------------------------------------------------------
+# build model matrix, must exclude: all response columns, all_questions
+
+x_train_0 = x_train[, -c(2,46,47)]  # omit response variables
+x_train_0 = x_train_0[,!(names(x_train_0) %in% all_questions)] # omit questions
+x_test_0 = x_test[,-c(2,46, 47)]
+x_test_0 = x_test_0[,!(names(x_test_0) %in% all_questions)] # omit questions
+
+y_train = x_train$course
+y_test  = x_test$course
+
+xtrain_mat = model.matrix( ~ . - 1, x_train_0)  # one-hot-encoding for factors
+xtest_mat = model.matrix( ~ . - 1, x_test_0)
+
+set.seed(1)
+pf_lasso = glmnet(x = xtrain_mat, y = as.factor(x_train$pass), 
+                 alpha = 1, family = 'binomial')     # fit lasso model
+cv_pf_lasso = cv.glmnet(x = xtrain_mat, y = as.factor(x_train$pass), 
+                        family = 'binomial', alpha = 1) 
+lambda_star = cv_pf_lasso$lambda.min                  # optimal lambda: 0.349
+
+predict(pf_lasso, type = 'coefficients', s = lambda_star) # coefficients
+
+lasso_results = getClassResults(pf_lasso, x_train, x_test, lambda = lambda_star, 
+                                xtrain_mat = xtrain_mat, xtest_mat = xtest_mat)
+
+lasso_results$test_balance   # test balanced accuracy  :  0.7208791
+lasso_results$test_overall   # test overall accuracy   :  0.852071
+lasso_results$conf_mat       # true values of pass/fail are given by column sums
+
+
+
+#### basic regression models ---------------------------------------------------
 
 ## build the basic models: 
 # course ~ must
@@ -110,4 +142,59 @@ getMSE(basic_must_comm, x_test, x_test$course) # 89.75877
 
 
 
+##### REGRESSION RESULTS:
+
+## TEST MSE
+# 0. lm with all features     :  74.7165    **** best performance
+# 1. logistic w/ must         :  110.9036
+# 2. logistic w/ comm         :  100.0315
+# 3. logistic w/ must + comm  :  89.75877
+
+
+#### basic classification models -----------------------------------------------
+
+
+xtest_mat = model.matrix( ~ . - 1, x_test_0)
+
+# model 1: pass ~ must
+m1 = glm(as.factor(pass) ~ must, family = 'binomial', x_train)
+summary(m1)
+# obtain train/test balanced/overall accuracy, confusion matrix
+m1_results = getClassResults(m = m1, x_train = x_train, x_test = x_test)
+m1_results$test_balance   # test balanced accuracy :  0.6534799
+m1_results$test_overall   # test overall accuracy  :  0.7337278
+m1_results$conf_mat       # true values of pass/fail are given by column sums
+
+
+# pass ~ comm
+m2 = glm(as.factor(pass) ~ comm, family = 'binomial', x_train)
+summary(m2)
+# obtain train/test balanced/overall accuracy, confusion matrix
+m2_results = getClassResults(m = m2, x_train = x_train, x_test = x_test)
+m2_results$test_balance   # test balanced accuracy :  0.6959707
+m2_results$test_overall   # test overall accuracy  :  0.8402367
+m2_results$conf_mat       # true values of pass/fail are given by column sums
+
+
+# pass ~ must + comm
+m3 = glm(as.factor(pass) ~ must + comm, family = 'binomial', x_train)
+summary(m3)
+# obtain train/test balanced/overall accuracy, confusion matrix
+m3_results = getClassResults(m = m3, x_train = x_train, x_test = x_test)
+m3_results$test_balance   # test balanced accuracy :  0.6728938
+m3_results$test_overall   # test overall accuracy  :  0.8313609
+m3_results$conf_mat       # true values of pass/fail are given by column sums
+
+
+
+##### CLASSIFICATION RESULTS:
+
+## TEST balanced accuracy
+# 0. lasso with all features  :  0.7208791 **** best performance
+# 1. logistic w/ must         :  0.6534799
+# 2. logistic w/ comm         :  0.6959707
+# 3. logistic w/ must + comm  :  0.6728938
+
+
+  
 # end of originalModels.R

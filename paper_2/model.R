@@ -237,8 +237,8 @@ predict(pf_lasso, type = 'coefficients', s = lambda_star) # coefficients
 
 lasso_results = getClassResults(pf_lasso, x_train, x_test, lambda = lambda_star, 
                                 xtrain_mat = xtrain_mat, xtest_mat = xtest_mat)
-lasso_results$test_balance   # test balanced accuracy  :  0.7054945
-lasso_results$test_overall   # test overall accuracy   :  0.8461538
+lasso_results$test_balance   # test balanced accuracy  :  0.7208791
+lasso_results$test_overall   # test overall accuracy   :  0.852071
 lasso_results$conf_mat       # true values of pass/fail are given by column sums
 
 
