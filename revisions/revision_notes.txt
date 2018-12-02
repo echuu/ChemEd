@@ -1,0 +1,41 @@
+
+
+## Directory contents:
+(1) Address the points in the reviewer comments about old vs new MUST
+
+
+Notes: 
+- use the dataset intended for SECOND paper since the data is more processed (?)
+	- makes sense to use one centralized dataset for analysis so that we need
+	  not distinguish which dataset we're using, allows for consistency
+
+# Columns used in dataset before we make changes to adapt it to account for
+# new vs. old MUST (35 columns)
+	# school   
+	# course   
+	# class    
+	# gender   
+	# ethnic   
+	# major    
+	# tx_birth
+	# tx_hs  
+	# emp_on   
+	# emp_off  
+	# hrs      
+	# version  
+	# MQ1 : MQ20     
+	# must     
+	# pass     
+	# gp_edu  
+
+
+General Approach:
+(1) comparing old vs. new
+    - course average using old must
+    - course average using new must
+
+(2) categorizing must questions to identify types of questions that are 
+    indicative of course performance
+	- use MUST detail to create question categories 
+	    - form category scores (sum over category scores to recover MUST)
+

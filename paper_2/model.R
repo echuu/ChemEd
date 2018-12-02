@@ -21,7 +21,7 @@ library(glmnet)
 # gender          :  indicator for male, if not reported, then -1
 # ethnic          :  ethnicity (Asian, Black, Hisp, Mixed, White, Other)
 # tx_birth        :  indicator for born in Texas
-# tx_hs           :  indiator for attended high school in Texas
+# tx_hs           :  indicator for attended high school in Texas
 # grand           :  indicator for grandparents college education (N, Y, Other)
 # parent          :  indicator for parents college education (N, Y, Other)
 # emp_on          :  indicator for employment on campus (0, 1)

@@ -28,8 +28,8 @@ x = read.csv("part2/data/x_model.csv") # 1020 x 60
 #    hs_chem    :  poor encoding
 #    math_comp  :  poor encoding
 #    curr_math  :  poor encoding
-#    chem1      :  
-#    chem2      : 
+#    chem1      :  poor encoding
+#    chem2      :  poor encoding
 #    letter     :  calculated using the course average
 #    final_exam :  included in the calculation of the course average
 #    zip        :  poorly encoded
