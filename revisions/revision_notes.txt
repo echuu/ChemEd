@@ -28,6 +28,7 @@ Notes:
 	# pass     
 	# gp_edu  
 
+- Questions 6, 16, 17, 18 are the new questions that were added to MUST
 
 General Approach:
 (1) comparing old vs. new
@@ -36,6 +37,20 @@ General Approach:
 
 (2) categorizing must questions to identify types of questions that are 
     indicative of course performance
+
+    # categories:
+        # (1) mult    : 1, 2, 3               (multiplication questions)
+        # (2) div     : 4, 6, 7, 8, 16        (division questions)
+        # (3) frac    : 9, 10, 17, 18         (fraction questions)
+        # (4) log_exp : 5, 12, 13, 14, 15     (logs and power questions)
+        # (5) chem    : 11, 19, 20            (chemistry questions)
+
 	- use MUST detail to create question categories 
 	    - form category scores (sum over category scores to recover MUST)
 
+
+Other things to consider:
+    - if we want to focus on the impact of MUST as a performance indicator, 
+      we might want to consider modeling without the demographic features and 
+      treating each MUST question as a separate indicator feature. this would
+      make modeling less convoluted when we are trying to compare old/new must

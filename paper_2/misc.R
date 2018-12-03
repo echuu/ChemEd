@@ -6,16 +6,14 @@
 # list of functions:
 #
 #    generateTrainTest()    :  returns train/test sets as a list
-#
-#
-#
-#
-#
+#    getMSE()               :  mse of predictions using input model
+#    classAccuracy()        :  sensitivity, specificity, accuracy of input model
+#    tuneThreshold()        :  optimal threshold, balanced accuracy, # iters
+#    getClassResults()      :  list of classification accuracy results
 #
 #-------------------------------------------------------------------------------
 
 library(dplyr)
-
 
 ##### --------------- Chemistry Education Project Specific ---------------- ####
 
@@ -163,7 +161,7 @@ tuneThreshold = function(pred_prob, true_class, targetAcc, maxIter = 50,
 #           x_train     : training set (contains response as a column)
 #           x_test      : test set (contains response as a column)
 #           minBalAcc   : min. BALANCED accuracy
-# output:   out         : list containing convergence results: 
+# output:   out         : list containing classification results: 
 #                             (1) balanced train accuracy 
 #                             (2) overall train accuracy
 #                             (3) balanced test accuracy 
