@@ -54,3 +54,32 @@ Other things to consider:
       we might want to consider modeling without the demographic features and 
       treating each MUST question as a separate indicator feature. this would
       make modeling less convoluted when we are trying to compare old/new must
+
+
+Models:
+
+Regression
+    (1)  course avg ~ new/old must total (omit category sums)
+         (a) course avg ~ old must + ...
+         (b) course avg ~ new must + ...
+    (2)  course avg ~ new/old must individual questions (omit category sums)
+         (a) course avg ~ 16 old MUST questions + ...
+         (b) course avg ~ 20 MUST questions + ...
+    (3)  course avg ~ category sums (omit old_sum, must totals)
+    (4)  course avg ~ 20 individual must questions (LASSO for var selection)
+    (5)  course avg ~ category sums (LASSO for var selection)
+
+
+Classification
+    (6)  pass ~ new/old mst total (omit category sums)
+         (a) pass ~ old must + ...
+         (b) pass ~ new must + ...
+    (7)  pass ~ new/old must individual questions (omit category sums)
+         (a) pass ~ 16 old MUST questions + ...
+         (b) pass ~ 20 MUST questions + ...
+    (8)  pass ~ category sums (omit old_sum, must totals)
+    
+--------------------------------------------------------------------------------
+TBD if we want to include these models:
+    (9)  pass ~ 20 individual must questions (LASSO for var selection)
+    (10) pass ~ category sums (LASSO for var selection)

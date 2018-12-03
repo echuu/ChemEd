@@ -71,6 +71,8 @@ write.csv(x0, "revised_x.csv", row.names = FALSE)
 
 #### ---------------    end variable transformation    -------------------- ####
 
+# x0 = read.csv("revised_x.csv")
+
 ## generate train/test set
 train_test = generateTrainTest(x0, seed = 0)
 x_train = train_test[[1]]   # 682 x 41
@@ -80,19 +82,12 @@ x_test  = train_test[[2]]   # 338 x 41
 #### ------    regression for modeling course average old vs. new   ------- ####
 
 # questions not included in the old MUST exam
-new_qs = c("MQ6", "MQ16", "MQ17", "MQ18", "must") 
+new_qs = c("MQ6", "MQ16", "MQ17", "MQ18") 
 cats   = c("mult", "div", "frac", "log_exp", "chem") # category names
 
-# (1a) model using the total must score of old vs. new
+# (1) model using the total must score of old vs. new
 
-# course_new: course average ~ new must + . (682 x 14 training matrix)
-vars_omit = c(MUST_q, cats, "pass", "old_must")
-course_must20 = lm(course ~ ., x_train[,!(names(x0) %in% vars_omit)])
-summary(course_must20)
-must20_coeffs = summary(course_must20)$coefficients
-getMSE(course_must20, x_test, x_test$course) # 96.38957
-
-# course_old: course average ~ old must + . (682 x 14 training matrix)
+# (1a) course_old: course average ~ old must + . (682 x 14 training matrix)
 vars_omit = c(MUST_q, cats, "pass", "must")
 course_must16 = lm(course ~ ., x_train[,!(names(x0) %in% vars_omit)])
 summary(course_must16)
@@ -100,34 +95,96 @@ must16_coeffs = summary(course_must16)$coefficients
 getMSE(course_must16, x_test, x_test$course) # 99.18616
 
 
-# (1b) model using indicator for each question old vs. new (nested model)
+# (1b) course_new: course average ~ new must + . (682 x 14 training matrix)
+vars_omit = c(MUST_q, cats, "pass", "old_must")
+course_must20 = lm(course ~ ., x_train[,!(names(x0) %in% vars_omit)])
+summary(course_must20)
+must20_coeffs = summary(course_must20)$coefficients
+getMSE(course_must20, x_test, x_test$course) # 96.38957
 
 
+# (2) model using indicator for each question old vs. new (nested model)
+# ensure that each question is encoded as a factor
+indicator_vars = c("gender", "version", MUST_q)
+x0[,indicator_vars] = lapply(x0[,indicator_vars], as.factor)
 
-#### ------    regression for modeling course average old vs. new   ------- ####
+## (2a) course_ind16: course average ~ 16 must questions (682 x 29 training)
+# omit the 4 questions included in the new MUST
+vars_omit = c(cats, new_qs, "pass", "old_must", "must")
+course_ind16 = lm(course ~ ., x_train[,!(names(x0) %in% vars_omit)])
+summary(course_ind16)
+course_ind16_coeffs = summary(course_ind16)$coefficients
+getMSE(course_ind16, x_test, x_test$course) # 95.98762
 
-# (2a) model using category sums
+# (2a) course_ind20: course average ~ all 20 must questions (682 x 33 training)
+vars_omit = c(cats, "pass", "old_must", "must")
+course_ind20 = lm(course ~ ., x_train[,!(names(x0) %in% vars_omit)])
+summary(course_ind20)
+course_ind20_coeffs = summary(course_ind20)$coefficients
+getMSE(course_ind20, x_test, x_test$course) # 92.78069
+
+# test for significance between the nested models
+anova(course_ind16, course_ind20) # p < 0.05 --> the extra q's are significant
 
 
+#### ---   regression for modeling course average using question cats   --- ####
+
+# (3) model using category sums
+
+## course_cat: course average ~ must question categories (682 x 18)
+vars_omit = c(MUST_q, "pass", "old_must", "must")
+dim(x_train[,!(names(x0) %in% vars_omit)]) # 682 x 18
+
+course_cat = lm(course ~ ., x_train[,!(names(x0) %in% vars_omit)])
+summary(course_cat) # all cats but multiplication significant
+course_cat_coeffs = summary(course_cat)$coefficients
+getMSE(course_cat, x_test, x_test$course) # 93.46515
+ 
 
 #### -------    lasso reg for modeling course average old vs. new   ------- ####
 
-# (3a) lasso: course average ~ individual must questions (new)
+# (4) lasso: course average ~ individual must questions (682 x 33 training)
+     # see if the new questions are not zero'd out by lasso
+vars_omit = c(cats, "pass", "must", "old_must")
+dim(x_train[,!(names(x0) %in% vars_omit)]) # 682 x 18
 
-# (3b) lasso: course average ~ category sums 
+
+# (5) lasso: course average ~ category sums 
     # see which categories are indicative of performance
+vars_omit = c(MUST_q, "pass", "must", "old_must")
+dim(x_train[,!(names(x0) %in% vars_omit)]) # 682 x 18
+
 
 
 
 #### ----    classification for modeling course average old vs. new   ----- ####
 
-# (4a) model using the total must score of old vs. new
+# (6) model using the total must score of old vs. new --------------------------
 
-# (4b) model using indicator for each question old vs. new (nested model)
+# (6a) logistic: pass ~ old must + ...
+vars_omit = c(MUST_q, cats, "course", "must")     # old
+dim(x_train[,!(names(x0) %in% vars_omit)])        # 682 x 14 -- match w/ (1a)
+names(x_train[,!(names(x0) %in% vars_omit)])      # 682 x 14
 
-# (4c) model using category sums
+# (6b) logistic: pass ~ new must + ...
+vars_omit = c(MUST_q, cats, "course", "old_must") # new
+dim(x_train[,!(names(x0) %in% vars_omit)])        # 682 x 14 -- match w/ (1b)
+names(x_train[,!(names(x0) %in% vars_omit)])      # 682 x 14
 
+# (7) pass ~ new/old must individual questions (omit category sums) ------------
 
+# (7a) class_indic16: pass ~ 16 old MUST questions + ...
+vars_omit = c(cats, new_qs, "course", "old_must", "must")
+dim(x_train[,!(names(x0) %in% vars_omit)]) # 682 x 29 -- match with (2a)
+
+# (7b) class_indic20: pass ~ 20 old MUST questions + ...
+vars_omit = c(cats, "course", "old_must", "must")
+dim(x_train[,!(names(x0) %in% vars_omit)]) # 682 x 33 -- match with (2b)
+
+# (8) class_cat: pass ~ category sums
+# class_cat
+vars_omit = c(MUST_q, "course", "old_must", "must")
+dim(x_train[,!(names(x0) %in% vars_omit)]) # 682 x 18 -- match with (3)
 
 
 
