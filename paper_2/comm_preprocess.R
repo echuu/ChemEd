@@ -6,11 +6,12 @@
 
 ## clean up the way the data is presented, add some variables of interest
 
-setwd('/home/eric/Dropbox/chem_ed')
+# 12/13 -- moved p2_data to working directory
+# setwd('/home/eric/Dropbox/chem_ed')
 
 library(dplyr)
 
-d = read.csv("data/p2_data.csv") # 1020 x 56
+d = read.csv("p2_data.csv") # 1020 x 56
 
 ## GLOBAL VARS
 n = nrow(d) # number of observations
