@@ -2,24 +2,28 @@
 # modeling.R
 library(glmnet)
 
-setwd("~/ChemEd/revisions")                # set this to where revised_x.csv is
+# setwd("~/ChemEd/revisions")              # linux machine path
+setwd("C:/Users/chuu/ChemEd/revisions")    # windows machine path
 
-source("/home/eric/ChemEd/paper_2/misc.R") # set this path to where misc.R is
+# source("/home/eric/ChemEd/paper_2/misc.R")    # linux machine path to misc.R
+source("C:/Users/chuu/ChemEd/paper_2/misc.R") # windows machine path to misc.R
 
-x0 = read.csv("revised_x.csv")
-
-# ensure that each question is encoded as a factor
-indicator_vars = c("gender", "version", MUST_q)
-x0[,indicator_vars] = lapply(x0[,indicator_vars], as.factor)
+x0 = read.csv("revised_x.csv")  # revised_x is the final cleaned data
 
 # global vars
 MUST_q = paste(rep("MQ", 20), 1:20, sep = "")  # 20 MUST questions
 
 
+# ensure that each question is encoded as a factor
+indicator_vars = c("gender", "version", MUST_q)
+x0[,indicator_vars] = lapply(x0[,indicator_vars], as.factor)
+
+str(x0)
+
 ## generate train/test set
 train_test = generateTrainTest(x0, seed = 0)
 x_train = train_test[[1]]   # 682 x 41
-x_test  = train_test[[2]]   # 338 x 41 
+x_test  = train_test[[2]]   # 338 x 41
 
 
 #### ------    regression for modeling course average old vs. new   ------- ####

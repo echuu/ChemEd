@@ -160,9 +160,6 @@ d$emp_off[d$emp_off == "T"] = "N"
 d$emp_off = as.factor(d$emp_off)
 
 
-# subset rows containing NA values:
-rows_NA = d[rowSums(is.na(d)) > 0,] # rows are containing mostly variables that
-                                    # we didn't use in the part 1 study
 
 
 # one of the MQ7 entries has a typo, making the entire column a factor
