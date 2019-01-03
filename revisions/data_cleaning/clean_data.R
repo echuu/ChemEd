@@ -6,7 +6,7 @@ library(dplyr)
 
 setwd("C:/Users/chuu/ChemEd/revisions/data_cleaning")
 
-d = read.csv("must_raw.csv")
+d = read.csv("must_final.csv")
 
 ## GLOBAL VARS
 n = nrow(d) # number of observations
@@ -17,7 +17,7 @@ MIN_PASS = 70 # lowest passing course score
 ################# ---- reformat school variable ---- ########################
 
 
-names(d)[1] = "school"
+# names(d)[1] = "school"
 
 ## remove the suffixes of each of the school so to extract 4-5 letter abbrev
 id      = as.character(d[,1])
@@ -35,7 +35,7 @@ for (s in school_names) {
 ## note that the number of observations from each school is different
 ## when we split into train/test sets, take equal proportions from each school
 ## so that we do not completely leave out a school
-table(id_inst) # 7 schools identified by 4-5 letter codes -- 1020 total
+table(id_inst) # 7 schools identified by 4-5 letter codes -- 1073 total
 
 # replace the existing school column with the newly encoded school IDs
 d = d %>% mutate(school = id_inst)
@@ -46,7 +46,7 @@ d = d %>% filter(school %in% school_names)
 # merge UNTB and UNTW schools into UNT
 d[d$school == "UNTB" | d$school == "UNTW",]$school = "UNT"
 
-hrs = d$Hrs
+hrs = d$hrs
 
 # write to file to do intermediate (manual) cleaning
 write.csv(d, "must_partial_clean.csv", row.names = FALSE)
@@ -68,7 +68,7 @@ d = d %>% mutate(pass = (course > MIN_PASS) + 0) # indicator for pass/fail
 #####################    process variable values    ############################
 
 # remove letter variable
-d$letter = NULL
+# d$letter = NULL
 
 
 ## Many of the variables contain values that are incorrectly inputted, creating
@@ -76,9 +76,9 @@ d$letter = NULL
 
 # class (FR/)
 d %>% select(class) %>% table
-d$class[d$class == "SO " ] = "SO"
-d$class[d$class == "SP" ]  = "SO"
-d$class = droplevels(d$class)      # drop levels with no observations
+# d$class[d$class == "SO " ] = "SO"
+# d$class[d$class == "SP" ]  = "SO"
+# d$class = droplevels(d$class)      # drop levels with no observations
 
 ## PB class variable ???
 
@@ -92,34 +92,39 @@ d$class = droplevels(d$class)      # drop levels with no observations
 
 # Other (Arabic, Asian Indian, Native American, Pacific Islander, Pakistani)
 # note: this new def of the group 'Other' differs slightly from part 1 analysis
-
-length(table(d$ethnic))
 table(d$ethnic)
-ethn_names = names(table(d$ethnic))
-mixed = c("White,Nat Am", "White,PI", "White, Asian", "White,AsianInd",
-          "White,Black", "White,Hisp", " White,NA",
-          "White, NA", "White,Asian", "White,Arab", "Mixed", "Hisp,White",
-          "Hisp,Arab", "Hisp,Asian", "Hisp,AsianInd", "Hisp,Black", "Hisp, NA",
-          "Hisp &White", "Black,White", "Black,Hisp", "Asian,White", 
-          "Asian, PI")
-sum(!(mixed %in% ethn_names)) # check for mis-spelled ethnicities
+# length(table(d$ethnic))
+# table(d$ethnic)
+# ethn_names = names(table(d$ethnic))
+# mixed = c("White,Nat Am", "White,PI", "White, Asian", "White,AsianInd",
+#          "White,Black", "White,Hisp", " White,NA",
+#          "White, NA", "White,Asian", "White,Arab", "Mixed", "Hisp,White",
+#          "Hisp,Arab", "Hisp,Asian", "Hisp,AsianInd", "Hisp,Black", "Hisp, NA",
+#          "Hisp &White", "Black,White", "Black,Hisp", "Asian,White", 
+#          "Asian, PI")
+# sum(!(mixed %in% ethn_names)) # check for mis-spelled ethnicities
 
 d$ethnic = as.character(d$ethnic)
-d$ethnic[(d$ethnic %in% mixed)] = "Mixed"  # group Mixed
+# d$ethnic[(d$ethnic %in% mixed)] = "Mixed"  # group Mixed
 
-d$ethnic[d$ethnic == "Whte"] = "White"     # White mispelled
+# d$ethnic[d$ethnic == "Whte"] = "White"     # White mispelled
 
-ethn_groups = c("Other", "Asian", "White", "Mixed", "Hisp", "Black")
-d$ethnic[!(d$ethnic %in% ethn_groups)] = "Other"
+# ethn_groups = c("Other", "Asian", "White", "Mixed", "Hisp", "Black")
+# d$ethnic[!(d$ethnic %in% ethn_groups)] = "Other"
 d$ethnic = as.factor(d$ethnic)
 
 
 # gender: 0/female 642, 1/male 454, -1/missing 11 
 table(d$gender)
+d$gender[is.na(d$gender)] = -1
 d$gender = as.character(d$gender)
-d$gender[d$gender == ""] = -1
-d$gender[d$gender == "O"] = 0
+# d$gender[d$gender == ""] = -1
+# d$gender[d$gender == "O"] = 0
 d$gender = as.factor(d$gender)
+
+
+## DONE UP TIL HERE --------------------------------------------------
+
 
 # parents: N (321), Y (766), Other (20)
 table(d$parents)
@@ -140,8 +145,6 @@ d$grands = as.factor(d$grands)
 str(d$version) 
 d$version = as.factor(d$version) # factor: levels 78, 87
 
-# tx_hs --- too few No's
-d$tx_hs = NULL
 
 # no rows with missing values
 rows_NA = d[rowSums(is.na(d)) > 0,] 
@@ -152,6 +155,7 @@ i = which(d$MQ7 == "`0")
 d$MQ7[i] = 0
 d$MQ7 = droplevels(d$MQ7)
 d$MQ7 = as.numeric(as.character(d$MQ7))
+
 
 colSums(apply(d[,13:32], 2, table)) # check that all must questions encoded
 
