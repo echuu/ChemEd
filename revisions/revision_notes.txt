@@ -83,3 +83,10 @@ Classification
 TBD if we want to include these models:
     (9)  pass ~ 20 individual must questions (LASSO for var selection)
     (10) pass ~ category sums (LASSO for var selection)
+
+
+1.9.19
+- remove variable created from merging grandparent, parent education (too messy)
+    - blank entries encoded as DK
+- emp_on, emp_off: blank entries encoded as N (corrected obvious typos to valid input)
+- 
