@@ -48,17 +48,22 @@ d[d$school == "UNTB" | d$school == "UNTW",]$school = "UNT"
 
 hrs = d$hrs
 
+d = d[,1:32] # omit columns with common questions for this analysis
+
 # write to file to do intermediate (manual) cleaning
 write.csv(d, "must_partial_clean.csv", row.names = FALSE)
 
 ### -------------------------------------------------------------------------
 
 # read in edited must_partial_clean.csv
-d = read.csv("must_partial_clean.csv")
+d = read.csv("must_partial_clean.csv") # 1073 x 32
+
 
 # remove rows without course average reported
 d = d[!is.na(d$course),]   # 1107 x 34
 
+
+d_miss = d[rowSums(is.na(d)) > 0,] # a 
 
 ##################### ---- add pass/fail variable ---- #########################
 
@@ -125,6 +130,12 @@ d$gender = as.factor(d$gender)
 
 ## DONE UP TIL HERE --------------------------------------------------
 
+table(d$gp_edu)
+d$gp_edu = as.character(d$gp_edu)
+edu = c("NN", "YY", "NY", "YN", "Other")
+d$gp_edu[!(d$gp_edu %in% edu)] = "Other"
+d$gp_edu = as.factor(d$gp_edu)
+
 
 # parents: N (321), Y (766), Other (20)
 table(d$parents)
@@ -157,7 +168,7 @@ d$MQ7 = droplevels(d$MQ7)
 d$MQ7 = as.numeric(as.character(d$MQ7))
 
 
-colSums(apply(d[,13:32], 2, table)) # check that all must questions encoded
+colSums(apply(d[,12:31], 2, table)) # check that all must questions encoded
 
 
 # remove emp_on, emp_off variables
