@@ -8,7 +8,7 @@
 
 library(dplyr)
 
-setwd("C:/Users/chuu/ChemEd/revisions/data_cleaning")
+setwd("C:/Users/chuu/ChemEd/revisions/modeling/data_files")
 
 d = read.csv("must_final.csv")
 
