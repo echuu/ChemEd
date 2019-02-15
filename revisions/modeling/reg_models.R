@@ -96,5 +96,17 @@ mean((lasso_pred0 - y_test)^2) # MSE: 110.7456
 write.csv(as.data.frame(as.matrix(coeffs_l0)), "reg_coef_lasso.csv")
 
 
+# ------------------------------------------------------------------------------
+
+ex_stud = xtrain_mat[1,]
+ex_stud[1:32] = 0
+ex_stud[c(4, 9, 10, 16, 17, 21, 23, 24, 30, 31)] = 1
+ex_stud[32] = 10
+
+x_copy = xtest_mat
+x_copy[1,] = ex_stud
+lasso_pred = predict(course_lasso, s = lambda_star0, newx = x_copy,
+                     type = 'response')
+lasso_pred[1] # 73.5629
 
 

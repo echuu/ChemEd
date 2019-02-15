@@ -69,5 +69,15 @@ lasso_response = (lasso_pred > t_star_lasso) + 0
 # overall : 0.7887324
 classAccuracy(lasso_response, x_test$pass)
 
+# test on example student ------------------------------------------------------
+ex_stud = xtrain_mat[1,]
+ex_stud[c(4, 9, 10, 16, 17, 21, 23, 24, 30, 31)] = 1
+ex_stud[32] = 10
 
+
+x_copy = xtest_mat
+x_copy[1,] = ex_stud
+lasso_pred = predict(pf_lasso, s = lambda_star0, newx = x_copy,
+                     type = 'response')
+lasso_pred[1] # 0.2417805
 
