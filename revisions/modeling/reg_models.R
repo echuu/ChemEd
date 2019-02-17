@@ -19,7 +19,8 @@ MUST_q = paste(rep("MQ", 20), 1:20, sep = "")  # 20 MUST questions
 
 
 # ensure that each question is encoded as a factor
-indicator_vars = c("gender", "ver", "pass", MUST_q)
+indicator_vars = c("school", "ethnic",
+                   "gender", "ver", "pass", MUST_q)
 x0[,indicator_vars] = lapply(x0[,indicator_vars], as.factor)
 
 str(x0) # only numeric variables: must, old_must, 5 categories, course average
@@ -48,7 +49,8 @@ course_must20 = lm(course ~ ., x_train[,!(names(x0) %in% vars_omit)])
 summary(course_must20)
 must20_coeffs = summary(course_must20)$coefficients
 getMSE(course_must20, x_test, x_test$course) # 110.3085
-write.csv(must20_coeffs, "reg_coef.csv")
+
+# write.csv(round(must20_coeffs, 4), "reg_coef.csv")
 
 
 # null model
@@ -80,8 +82,8 @@ y_train = x_train$course   # training response (718 x 1)
 y_test  = x_test$course    # test response     (355 x 1)
 
 # create model matrix compatible with glmnet(), one hot encoding for factors
-xtrain_mat = model.matrix( ~ . - 1, xtrain_lasso) # 682 x 32
-xtest_mat  = model.matrix( ~ . - 1, xtest_lasso)  # 338 x 32
+xtrain_mat = model.matrix( ~ . , xtrain_lasso)[,-1] # 682 x 32
+xtest_mat  = model.matrix( ~ . , xtest_lasso)[,-1]  # 338 x 32
 
 set.seed(1)
 course_lasso = glmnet(x = xtrain_mat, y = y_train, alpha = 1)
@@ -91,22 +93,27 @@ cv_course_lasso = cv.glmnet(x = xtrain_mat, y = y_train, alpha = 1)
 # lasso model coefficients
 coeffs_l0 = predict(course_lasso, type = 'coefficients', s = lambda_star0) 
 lasso_pred0  = predict(course_lasso, s = lambda_star0, newx = xtest_mat)
-mean((lasso_pred0 - y_test)^2) # MSE: 110.7456
+mean((lasso_pred0 - y_test)^2) # MSE: 111.4254
 
-write.csv(as.data.frame(as.matrix(coeffs_l0)), "reg_coef_lasso.csv")
+write.csv(as.data.frame(as.matrix(round(coeffs_l0, 4))), "reg_coef_lasso.csv")
 
 
 # ------------------------------------------------------------------------------
 
 ex_stud = xtrain_mat[1,]
-ex_stud[1:32] = 0
-ex_stud[c(4, 9, 10, 16, 17, 21, 23, 24, 30, 31)] = 1
-ex_stud[32] = 10
+ex_stud[1:31] = 0
+ex_stud[c(3, 8, 9, 15, 16, 20, 22, 23, 29)] = 1
+ex_stud[31] = 10
+
+
+cbind(round(coeffs_l0, 4), c(1, ex_stud))
+
+coeffs_l0[which(ex_stud > 0)]
 
 x_copy = xtest_mat
 x_copy[1,] = ex_stud
 lasso_pred = predict(course_lasso, s = lambda_star0, newx = x_copy,
                      type = 'response')
-lasso_pred[1] # 73.5629
+lasso_pred[1] # 74.26082
 
-
+coeffs_l0[c(1,c(4, 9, 11, 16, 17, 21, 23, 24, 30, 31)+1)]
