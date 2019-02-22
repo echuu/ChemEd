@@ -5,8 +5,8 @@
 
 library(glmnet)
 
-# setwd("~/ChemEd/revisions/data_cleaning")            # linux machine path
-setwd("C:/Users/chuu/ChemEd/revisions/modeling")  # windows machine path
+# setwd("~/ChemEd/paper_1/data_cleaning")            # linux machine path
+setwd("C:/Users/chuu/ChemEd/paper_1/modeling")  # windows machine path
 
 # source("/home/eric/ChemEd/paper_2/misc.R")   # linux machine path to misc.R
 source("C:/Users/chuu/ChemEd/paper_2/misc.R")  # windows machine path to misc.R

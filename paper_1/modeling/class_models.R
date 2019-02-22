@@ -1,9 +1,42 @@
 
+# class_models.R -- classification models used in Paper 1
 
-#### ----    classification for modeling course average old vs. new   ----- ####
+# Modeling Included:
+#    (1)  : (full model) pass/fail ~ new must + .
+#    (2)  : (LASSO)      pass/fail ~ new must + . (+ var selection) 
+#    (3)  : (example)    predict pass/fail for example student
+
+library(glmnet)
+
+# setwd("~/ChemEd/paper_1/data_cleaning")            # linux machine path
+setwd("C:/Users/chuu/ChemEd/paper_1/modeling")       # windows machine path
+
+# source("/home/eric/ChemEd/paper_2/misc.R")   # linux machine path to misc.R
+source("C:/Users/chuu/ChemEd/paper_2/misc.R")  # windows machine path to misc.R
+
+x0 = read.csv("must.csv")  # must.csv is the final cleaned data (1073 x 40)
+
+# global vars
+MUST_q = paste(rep("MQ", 20), 1:20, sep = "")  # 20 MUST questions
 
 
-# (6b) logistic: pass ~ new must + ...
+# ensure that each question is encoded as a factor
+indicator_vars = c("school", "ethnic",
+                   "gender", "ver", "pass", MUST_q)
+x0[,indicator_vars] = lapply(x0[,indicator_vars], as.factor)
+
+str(x0) # only numeric variables: must, old_must, 5 categories, course average
+# ALL ELSE SHOULD BE FACTORS
+
+## generate train/test set: seed = 30
+train_test = generateTrainTest(x0, seed = 30)
+x_train = train_test[[1]]   # 718 x 40
+x_test  = train_test[[2]]   # 355 x 40
+
+
+## ----    (1) classification for modeling course average old vs. new   ----- ##
+
+# (1) logistic: pass ~ new must + ...
 vars_omit = c(MUST_q, cats, "course", "old_must") # new
 dim(x_train[,!(names(x0) %in% vars_omit)])        # 718 x 13 -- match w/ (1b)
 names(x_train[,!(names(x0) %in% vars_omit)])      # 718 x 13
@@ -11,6 +44,7 @@ names(x_train[,!(names(x0) %in% vars_omit)])      # 718 x 13
 pf1 = glm(as.factor(pass) ~ ., family = 'binomial', 
           x_train[,!(names(x0) %in% vars_omit)])
 summary(pf1)
+
 # obtain train/test balanced/overall accuracy, confusion matrix
 pf1_results = getClassResults(m = pf1, x_train = x_train, x_test = x_test)
 pf1_results$test_balance   # test balanced accuracy :  0.6733159
@@ -21,11 +55,11 @@ coeffs_6b = summary(pf1)$coefficients
 write.csv(as.data.frame(as.matrix(round(coeffs_6b, 4))), "class_coef.csv")
 
 
-#### --------    lasso reg for modeling pass/fail vs must       ----------- ####
+#### ------    (2) LASSO reg for modeling pass/fail vs must       --------- ####
 
 # lasso requires model matrix set up in particular way:
 xtrain_lasso = x_train[,!(names(x0) %in% vars_omit)]     # omit irrelevant vars
-xtrain_lasso$pass = NULL                               # omit response
+xtrain_lasso$pass = NULL                                 # omit response
 
 xtest_lasso = x_test[,!(names(x0) %in% vars_omit)]       # omit irrelevant vars
 xtest_lasso$pass = NULL                                  # omit response
@@ -56,21 +90,22 @@ train_probs = predict(pf_lasso, s = lambda_star0, newx = xtrain_mat,
 lasso_threshold = tuneThreshold(train_probs, x_train$pass, 0.7, DEBUG = FALSE)
 t_star_lasso = lasso_threshold$t_star
 train_preds = (train_probs > t_star_lasso) + 0
-# TRAINING results:
-# balanced: 0.7384448
-# overall : 0.770195
 classAccuracy(train_preds, x_train$pass) 
+# TRAINING results:
+#     balanced: 0.7384448
+#     overall : 0.770195
+
 
 # use model on test data
 lasso_pred = predict(pf_lasso, s = lambda_star0, newx = xtest_mat,
                      type = 'response')
 lasso_response = (lasso_pred > t_star_lasso) + 0
-# TEST results:
-# balanced: 0.7235588
-# overall : 0.7802817
 classAccuracy(lasso_response, x_test$pass)
+# TEST results:
+#     balanced: 0.7235588
+#     overall : 0.7802817
 
-# test on example student ------------------------------------------------------
+# (3) test on example student --------------------------------------------------
 ex_stud = xtrain_mat[1,]
 ex_stud[1:31] = 0
 ex_stud[c(3, 8, 9, 15, 16, 20, 22, 23, 29)] = 1
@@ -82,4 +117,7 @@ x_copy[1,] = ex_stud
 lasso_pred = predict(pf_lasso, s = lambda_star0, newx = x_copy,
                      type = 'response')
 lasso_pred[1] # 0.3318526
+
+
+# end class_models.R
 
