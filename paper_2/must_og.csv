@@ -1,4 +1,4 @@
-school,course,class,gender,ethnic,major,zip,grand,parent,emp_on,emp_off,hrs,ver,MQ1,MQ2,MQ3,MQ4,MQ5,MQ6,MQ7,MQ8,MQ9,MQ10,MQ11,MQ12,MQ13,MQ14,MQ15,MQ16,MQ17,MQ18,MQ19,MQ20,must,Q1A,Q1c,Q2A,Q2C,Q3A,Q3C,Q4A,Q4C,Q5A,Q5C,Q6A,Q6C,comm
+school,course,class,gender,ethnic,major,zip,grand,parent,emp_on,emp_off,hrs,ver,MQ1,MQ2,MQ3,MQ4,MQ5,MQ6,MQ7,MQ8,MQ9,MQ10,MQ11,MQ12,MQ13,MQ14,MQ15,MQ16,MQ17,MQ18,MQ19,MQ20,must,Q1A,Q1C,Q2A,Q2C,Q3A,Q3C,Q4A,Q4C,Q5A,Q5C,Q6A,Q6C,comm
 ACUPF17CHI001,95.4,FR,0,Hisp,b,76,Y,Y,N,N,11-19,78,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,1,1,17,1,1,1,1,1,1,1,0,1,1,1,1,11
 ACUPF17CHI002,82.9,FR,0,White,b,77,N,Y,N,N,0,87,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,1,1,1,1,1,1,9
 ACUPF17CHI003,96.0,FR,1,White,b,79,N,Y,N,N,0,87,0,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,16,1,1,1,1,1,1,1,1,1,1,1,1,12
