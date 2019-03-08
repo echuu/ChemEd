@@ -57,7 +57,109 @@ d = d %>% mutate(conc = Q1C + Q2C + Q3C + Q4C + Q5C + Q6C)
 
 
 d %>% select(class) %>% table
-d$class[d$class == "SO " ] = "SO" ### fixed
+# d$class[d$class == "SO " ] = "SO" ### fixed
+
+table(d$ethnic)
+ethn_names = names(table(d$ethnic))
+mixed = c("White,Nat Am", "White,PI", "White, Asian", "White,AsianInd",
+          "White,Black", "White,Hisp", " White,NA",
+          "White, NA", "White,Asian", "White,Arab", "Mixed", "Hisp,White",
+          "Hisp,Arab", "Hisp,Asian", "Hisp,AsianInd", "Hisp,Black", "Hisp, NA",
+          "Hisp &White", "Black,White", "Black,Hisp", "Asian,White", 
+          "Asian, PI")
+sum(!(mixed %in% ethn_names)) # check for mis-spelled ethnicities
+
+d$ethnic = as.character(d$ethnic)
+d$ethnic[(d$ethnic %in% mixed)] = "Mixed"  # group Mixed
+
+d$ethnic[d$ethnic == "Whte"] = "White"     # White mispelled
+ethn_groups = c("Other", "Asian", "White", "Mixed", "Hisp", "Black")
+d$ethnic[!(d$ethnic %in% ethn_groups)] = "Other"
+
+table(d$ethnic)
+
+
+# gender: 0 (female), 1 (male), -1 (missing)
+table(d$gender)
+sum(is.na(d$gender)) # 10 missing values
+d$gender[is.na(d$gender)] = -1
+d$gender = as.factor(d$gender)
+table(d$gender)
+
+# parents
+table(d$parent) # nothing to fix here
+
+
+# grands
+table(d$grand)
+d$grand = as.character(d$grand)
+d$grand[d$grand == "n"] = "N"
+d$grand[d$grand == "N "] = "N"
+d$grand[!(d$grand %in% c("N", "Y"))] = "DK"
+d$grand = as.factor(d$grand)
+table(d$grand)
+
+# version
+table(d$ver)
+str(d$ver) 
+d$ver = as.factor(d$ver) # factor: levels 78, 87
+table(d$ver)
+
+# hrs
+table(d$hrs)
+d$hrs = as.character(d$hrs)
+sum(is.na(d$hrs)) # no missing values, only empty strings?
+d$hrs[d$hrs == ""] = "0"
+d$hrs = as.factor(d$hrs)
+d$hrs = droplevels(d$hrs)
+table(d$hrs) # 6 groups depending on hours working
+
+
+# emp_on:
+table(d$emp_on)
+d$emp_on = as.character(d$emp_on)
+d$emp_on[d$emp_on == ""] = "N"
+d$emp_on[d$emp_on == "n"] = "N"
+table(d$emp_on)
+d$emp_on = as.factor(d$emp_on)
+table(d$emp_on)
+
+
+# emp_off:
+table(d$emp_off)
+d$emp_off = as.character(d$emp_off)
+d$emp_off[d$emp_off == ""] = "N"
+d$emp_off[d$emp_off == "B"] = "N"
+table(d$emp_off)
+d$emp_off = as.factor(d$emp_off)
+table(d$emp_off)
+
+
+# majors
+stem  = c("a", "a. Eng", "a. Math", "a.Sci", "a. Sci", "a. Sci,Math",
+          "a. Sci, Tech", "a. Sc/Math", "a. Tech", "a. Tech,Eng", 
+          "a. Tech,Math", "STEM") 
+med   = c("b", "c + b", "SCI: c, b & b", "SCI: c-b; b: ALL") # medical students
+dual  = c("a. Sci & b", "b+a. Eng", "d", "STEM & b") # stem + non-stem 
+other = c("", " ", "c") # other students, includes blank responses
+
+all = c(stem, med, dual, other)
+
+sum(!(d$major %in% all))
+
+# length(stem) + length(med) + length(dual) + length(other)
+
+d$major = as.character(d$major)
+d$major[d$major %in% stem]  = "stem"
+d$major[d$major %in% med]   = "med"
+d$major[d$major %in% dual]  = "dual"
+d$major[d$major %in% other] = "other"
+
+table(d$major)
+
+d$major = as.factor(d$major)
+
+write.csv(d, "must.csv", row.names = FALSE)
 
 
 

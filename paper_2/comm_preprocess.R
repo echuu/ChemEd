@@ -75,7 +75,6 @@ d$class = droplevels(d$class)     # drop levels with no observations
 # Other (Arabic, Asian Indian, Native American, Pacific Islander, Pakistani)
 # note: this new def of the group 'Other' differs slightly from part 1 analysis
 
-length(table(d$ethnic))
 table(d$ethnic)
 ethn_names = names(table(d$ethnic))
 mixed = c("White,Nat Am", "White,PI", "White, Asian", "White,AsianInd",
@@ -92,6 +91,8 @@ d$ethnic[(d$ethnic %in% mixed)] = "Mixed"  # group Mixed
 d$ethnic[d$ethnic == "Whte"] = "White"     # White mispelled
 ethn_groups = c("Other", "Asian", "White", "Mixed", "Hisp", "Black")
 d$ethnic[!(d$ethnic %in% ethn_groups)] = "Other"
+
+table(d$ethnic)
 
 
 # gender: 0 (female), 1 (male), -1 (missing)
