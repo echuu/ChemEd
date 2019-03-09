@@ -87,7 +87,11 @@ d$gender = as.factor(d$gender)
 table(d$gender)
 
 # parents
-table(d$parent) # nothing to fix here
+table(d$parent)
+d$parent = as.character(d$parent)
+d$parent[d$parent == "n"] = "N"
+d$parent[!(d$parent %in% c("N", "Y"))] = "DK"
+d$parent = as.factor(d$parent)
 
 
 # grands
