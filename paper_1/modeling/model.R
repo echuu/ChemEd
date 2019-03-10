@@ -29,9 +29,6 @@ train_test = generateTrainTest(x0, seed = 30)
 x_train = train_test[[1]]   # 718 x 40
 x_test  = train_test[[2]]   # 355 x 40
 
-
-#### ------    regression for modeling course average old vs. new   ------- ####
-
 # questions not included in the old MUST exam
 new_qs = c("MQ6", "MQ16", "MQ17", "MQ18") 
 cats   = c("mult", "div", "frac", "log_exp", "symb") # category names

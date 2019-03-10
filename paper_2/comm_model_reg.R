@@ -102,6 +102,7 @@ x_test  = train_test[[2]]   # 338 x 49
     #                    must, cq (conc + alg) totals rather than individual q's
     # omit: individual questions, comm (use alg + conc), pass
 
+# omit 'pass' variable since it is a function of the course average
 vars_omit = c(all_questions, "pass", "comm")
 var_subset = !(var_names %in% vars_omit)
 var_names[!(var_names %in% vars_omit)]
@@ -112,6 +113,9 @@ m0_coeffs = summary(m0)$coefficients
 getMSE(m0, x_test, x_test$course)                # TEST MSE:    75.78647
 
 # save m0 coefficients to csv file
+coeffs_out = round(m0_coeffs, 4)
+write.csv(coeffs_out, "model_coeffs/reg/course_full_coef.csv")
+
 
 # (1) --------------------------------------------------------------------------
 # m1: course ~ must + ...
@@ -129,8 +133,8 @@ m1_coeffs = summary(m1)$coefficients
 getMSE(m1, x_test, x_test$course)                # TEST MSE:    105.3188
 
 # save m1 coefficients to csv file
-coeffs_out = round(m2_coeffs, 4)
-write.csv(coeffs_out, "model_coeffs/reg/course_comm_coef.csv")
+coeffs_out = round(m1_coeffs, 4)
+write.csv(coeffs_out, "model_coeffs/reg/course_must_coef.csv")
 
 
 # (2) --------------------------------------------------------------------------
