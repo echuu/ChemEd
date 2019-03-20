@@ -184,5 +184,29 @@ write.csv(coeffs_out, "model_coeffs/class/pf_lasso.csv")
 
 # ------------------------------------------------------------------------------
 
+ex_stud = xtrain_mat[1,]         # extract an example of a student
+ex_stud[1:length(ex_stud)] = 0   # reset the entries
+ex_stud[c(2, 10, 12, 19, 22, 23, 25, 18)] = 1
+ex_stud['must'] = 13
+ex_stud['alg']  = 5
+ex_stud['conc'] = 3
+
+data.frame(ex_stud, coeffs_lasso[2:34])
+
+x_copy = xtest_mat
+x_copy[1,] = ex_stud
+
+lasso_pred = predict(pf_lasso, s = lambda_star, newx = x_copy,
+                     type = 'response')  ## 0.8706258 probability of success
+logodds = predict(pf_lasso, s = lambda_star, newx = x_copy,
+        type = 'link')[1]
+
+exp(logodds) / (1 + exp(logodds))
+
+lasso_pred[1] # 82.13804
+
+
+
+
 
 # end of comm_model_class.R

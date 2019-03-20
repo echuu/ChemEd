@@ -199,6 +199,20 @@ write.csv(coeffs_out, "model_coeffs/reg/course_lasso.csv")
 
 # ------------------------------------------------------------------------------
 
+ex_stud = xtrain_mat[1,]         # extract an example of a student
+ex_stud[1:length(ex_stud)] = 0   # reset the entries
+ex_stud[c(2, 10, 12, 19, 22, 23, 25, 18)] = 1
+ex_stud['must'] = 13
+ex_stud['alg']  = 5
+ex_stud['conc'] = 3
 
+x_copy = xtest_mat
+x_copy[1,] = ex_stud
+
+data.frame(ex_stud, coeffs_lasso[2:34])
+
+lasso_pred = predict(course_lasso, s = lambda_star0, newx = x_copy,
+                     type = 'response')
+lasso_pred[1] # 82.13804
 
 # end of comm_model_reg.R
