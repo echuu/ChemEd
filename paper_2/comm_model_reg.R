@@ -209,7 +209,9 @@ ex_stud['conc'] = 3
 x_copy = xtest_mat
 x_copy[1,] = ex_stud
 
-data.frame(ex_stud, coeffs_lasso[2:34])
+data.frame(ex_stud, coeffs_l0[2:34])
+
+coeffs_l0[unname(ex_stud > 0)]
 
 lasso_pred = predict(course_lasso, s = lambda_star0, newx = x_copy,
                      type = 'response')

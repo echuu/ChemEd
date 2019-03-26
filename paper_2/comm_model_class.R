@@ -203,7 +203,7 @@ logodds = predict(pf_lasso, s = lambda_star, newx = x_copy,
 
 exp(logodds) / (1 + exp(logodds))
 
-lasso_pred[1] # 82.13804
+lasso_pred[1] # 0.8706258
 
 
 
