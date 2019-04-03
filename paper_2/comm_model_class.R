@@ -49,6 +49,14 @@ numer_cols = c("gender", "ver", "pass", all_questions)
 x[,numer_cols] = lapply(x[,numer_cols], factor) # numeric indicators -> factor
 str(x)
 
+x$hrs = as.character(x$hrs)
+x$hrs[grep(c("20-29"), x$hrs)] = "20+"
+x$hrs[grep(c("30-39"), x$hrs)] = "20+"
+x$hrs[grep(c("40+"), x$hrs)] = "20+"
+x$hrs = as.factor(x$hrs)
+
+
+
 train_test = generateTrainTest(x, seed = 0)
 
 x_train = train_test[[1]]   # 682 x 49
