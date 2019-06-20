@@ -49,6 +49,14 @@ getMSE(course_must16, x_test, x_test$course) # 112.4562
 vars_omit = c(MUST_q, cats, "pass", "old_must")
 dim(x_train[,!(names(x0) %in% vars_omit)]) # 718 x 13
 course_must20 = lm(course ~ ., x_train[,!(names(x0) %in% vars_omit)])
+
+# for revision: use QuantPsyc package for lm.beta() function to generate 
+# standardized regression coefficients
+library(QuantPsyc)
+xtrain_full = x_train[,!(names(x0) %in% vars_omit)]
+data.frame(lm.beta(course_must20))
+
+
 summary(course_must20)
 must20_coeffs = summary(course_must20)$coefficients
 getMSE(course_must20, x_test, x_test$course) # 110.3085
