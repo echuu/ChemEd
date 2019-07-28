@@ -15,4 +15,8 @@ paper_2: With the added Common Question (CQ) variable (12 questions), we
          explore further relationships between CQ and MUST performance, CQ 
          and university level Chemistry course performance, among other 
          academic-related metrics.
+         
+CERP DOI: 10.1039 C9RP00077A: the files in here can be used to fit the models
+          described in paper_1 to a new dataset. Note that the coefficients
+          will differ given a new dataset. 
 
