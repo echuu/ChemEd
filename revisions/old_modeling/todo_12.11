@@ -1,0 +1,43 @@
+
+
+Chem Ed 12/11 Update:
+
+
+revisions directory:
+- revised_x.csv  : this file is used modeling.R, already cleaned
+- x_model.csv    : this 'raw' file is used by preprocess.R
+
+Paper 1
+- use the updated dataset that VW sent out
+	- 1170 row for MUST vs course average
+- remove born in texas variable
+- merge the UNT schools
+- question categories?
+
+changes:
+- merged the UNT schools
+- omitted the rows with no course average value reported
+- class variable: "PB" value
+- omitted the hrs variable (all previous models showed no significance)
+- omitted tx_hs variable (1030 yes, 72 no), too 'yes' saturated
+- omitted emp_on, emp_off (heavily saturated with no's)
+
+
+Paper 2
+- use the updated dataset that VW sent out
+	- 1036 row for MUST vs common question
+- revisit calculations that Kirk set, get back to Kirk
+
+
+To-Do List:
+
+1. clean MUST data so that it looks EXACTLY like x_model.csv so that we can clean it with the same code in preprocess.R
+2. remove born in texas variable
+3. combine the UNT schools
+4. repeat the modeling done in modeling.R
+---------------------------------------------------------------
+5. revisit paper 2 calculations
+
+
+Jeff 4082417700
+
